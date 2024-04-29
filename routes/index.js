@@ -55,15 +55,33 @@ router.get('/',  async function(req, res, next) {
         title: "Home Page",
         users: users
     });
-} catch (err) {
-    res.json({ message: err.message });
-}
+    } catch (err) {
+        res.json({ message: err.message });
+    }
 });
 
 router.get('/add', function(req, res, next) {
   res.render('add_user', { title: 'Add Users' });
 });
 
+router.get('/edit/:id', async function(req, res, next) {
+  try {
+    let id = req.params.id;
+    const user = await User.findById(id);
+
+    if (!user) {
+      res.redirect('/');
+    } else {
+      res.render("edit_user", {
+        title: "Edit User",
+        user: user
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.redirect('/');
+  }
+});
 
 
 module.exports = router;
