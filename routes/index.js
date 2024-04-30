@@ -3,8 +3,13 @@ var router = express.Router();
 
 const User = require('../models/user')
 
+const fs = require('fs');
+const path = require('path');
+
 const multer = require('multer');
 const user = require('../models/user');
+const { error } = require('console');
+const { type } = require('os');
 
 // image upload
 
@@ -82,6 +87,39 @@ router.get('/edit/:id', async function(req, res, next) {
     res.redirect('/');
   }
 });
+
+
+router.post('/update/:id', upload, function(req, res, next) {
+  let id = req.params.id;
+  let new_image = '';
+  if (req.file) {
+    new_image = req.file.filename;
+    try {
+      fs.unlinkSync('./uploads' + req.body.old_image);
+    } catch (error) {
+      console.log(error)
+    }
+  } else {
+    new_image = req.body.old_image;
+  }
+
+  user.findByIdAndUpdate(id, {
+    name: req.body.name,
+    email: req.body.email,
+    phone: req.body.phone,
+    image: new_image,
+  }).then(result => {
+    req.session.message = {
+      type: 'success',
+      message: 'User updated successfully'
+    };
+    res.redirect('/');
+  }).catch(error => {
+    res.message({ message: error.message, type: 'danger' });
+  });
+});
+
+
 
 
 module.exports = router;
