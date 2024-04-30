@@ -120,6 +120,27 @@ router.post('/update/:id', upload, function(req, res, next) {
 });
 
 
+router.get('/delete/:id', async function(req, res, next) {
+  let id = req.params.id;
+  try {
+    const result = await User.findByIdAndDelete(id);
+    if (result && result.image !== '') {
+      try {
+        fs.unlinkSync('./uploads' + result.image);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    req.session.message = {
+      type: 'info',
+      message: 'User deleted successfully'
+    };
+    res.redirect('/');
+  } catch (error) {
+    res.message({ message: error.message });
+  }
+});
+
 
 
 module.exports = router;
